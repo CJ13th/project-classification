@@ -42,7 +42,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "add-${{ steps.generate_json.outputs.slug }}" || git checkout -b "add-${{ steps.generate_json.outputs.slug }}"
-          git add data/projects/${{ steps.generate_json.outputs.slug }}.json
+          git add "data/projects/${{ steps.generate_json.outputs.slug }}.json"
           git commit -m "Add project: ${{ steps.generate_json.outputs.slug }}"
           git push origin "add-${{ steps.generate_json.outputs.slug }}"
 
@@ -51,5 +51,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: "add-${{ steps.generate_json.outputs.slug }}"
+          base: main
           title: "Add new project: ${{ steps.generate_json.outputs.slug }}"
           body: "This PR adds a new project file for the project slug ${{ steps.generate_json.outputs.slug }}."
