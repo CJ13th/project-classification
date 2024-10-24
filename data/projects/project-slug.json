@@ -1,0 +1,28 @@
+{
+  "name": "project",
+  "slug": "project-slug",
+  "description": "Project Description",
+  "richText": "",
+  "links": {
+    "website": [],
+    "docs": [],
+    "explorer": [],
+    "repository": [
+      {
+        "label": "OtNode",
+        "url": "https://github.com/OriginTrail/ot-node"
+      }
+    ],
+    "social": []
+  },
+  "attributes": {
+    "networks": [],
+    "purposes": [],
+    "stackLevels": [],
+    "technologies": [
+      "Substrate"
+    ],
+    "types": [],
+    "rewards": false
+  }
+}
