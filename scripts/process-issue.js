@@ -1,18 +1,5 @@
 const fs = require("fs");
 
-function filterNoResponse(value) {
-  if (
-    typeof value === "string" &&
-    (value === "_No response_" || !value.trim())
-  ) {
-    return [];
-  }
-  if (Array.isArray(value)) {
-    return value.filter((v) => v !== "_No response_" && v.trim() !== "");
-  }
-  return value;
-}
-
 const issueBody = fs.readFileSync(process.argv[2], "utf8");
 
 console.log("Issue body content:", issueBody);
@@ -76,6 +63,32 @@ if (!data.slug) {
 const output = process.env.GITHUB_OUTPUT;
 fs.writeFileSync(output, `slug=${data.slug}\n`);
 
+function filterNoResponse(value) {
+  if (
+    typeof value === "string" &&
+    (value === "_No response_" || !value.trim())
+  ) {
+    return [];
+  }
+  if (Array.isArray(value)) {
+    return value.filter((v) => v !== "_No response_" && v.trim() !== "");
+  }
+  return value;
+}
+
+function handleMultiLineField(input) {
+  if (Array.isArray(input)) {
+    return input;
+  }
+  if (typeof input === "string") {
+    return input
+      .split("\n")
+      .map((item) => item.trim())
+      .filter((item) => item !== "");
+  }
+  return [];
+}
+
 function filterSelectedCheckboxes(options) {
   return options
     .filter((option) => {
@@ -124,10 +137,10 @@ const outputJson = {
     social: mapLabelledEntries(data.social || []),
   },
   attributes: {
-    networks: Array.isArray(data.networks) ? data.networks : [data.networks],
+    networks: handleMultiLineField(data.networks || []),
     purposes: filterSelectedCheckboxes(data.purposes || []),
     stackLevels: filterSelectedCheckboxes(data.stackLevels || []),
-    technologies: filterNoResponse(data.technologies || []),
+    technologies: fhandleMultiLineField(data.technologies || []),
     types: filterSelectedCheckboxes(data.types || []),
     rewards:
       data.rewards &&
