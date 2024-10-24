@@ -140,7 +140,7 @@ const outputJson = {
     networks: handleMultiLineField(data.networks || []),
     purposes: filterSelectedCheckboxes(data.purposes || []),
     stackLevels: filterSelectedCheckboxes(data.stackLevels || []),
-    technologies: fhandleMultiLineField(data.technologies || []),
+    technologies: handleMultiLineField(data.technologies || []),
     types: filterSelectedCheckboxes(data.types || []),
     rewards:
       data.rewards &&
