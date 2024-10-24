@@ -52,7 +52,7 @@ jobs:
             git checkout -b "${BRANCH_NAME}"
           fi
 
-          git pull --rebase origin "${BRANCH_NAME}"
+          git pull origin "${BRANCH_NAME}"
 
           git stash pop || true
           
