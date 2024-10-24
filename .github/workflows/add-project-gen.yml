@@ -44,21 +44,21 @@ jobs:
 
           git fetch origin
 
-          git stash --include-untracked
-
-          if git ls-remote --heads origin "${BRANCH_NAME}" | grep "${BRANCH_NAME}"; then
-            git checkout -B "${BRANCH_NAME}"
-            git reset --hard "origin/${BRANCH_NAME}"
-          else
-            git checkout -b "${BRANCH_NAME}"
+          if git rev-parse --verify "${BRANCH_NAME}"; then
+            git branch -D "${BRANCH_NAME}"
           fi
 
-          git stash pop || true
+          if git ls-remote --heads origin "${BRANCH_NAME}" | grep "${BRANCH_NAME}"; then
+            git push origin --delete "${BRANCH_NAME}"
+          fi
+
+          git checkout -b "${BRANCH_NAME}"
 
           git add "data/projects/${{ steps.generate_json.outputs.slug }}.json"
           
-          git commit -m "Update project: ${{ steps.generate_json.outputs.slug }}"
-          git push --force origin "${BRANCH_NAME}"
+          git commit -m "Add project: ${{ steps.generate_json.outputs.slug }}"
+          git push origin "${BRANCH_NAME}"
+
 
           
       - name: Install GitHub CLI
