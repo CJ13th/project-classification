@@ -124,7 +124,7 @@ const outputJson = {
     social: mapLabelledEntries(data.social || []),
   },
   attributes: {
-    networks: data.networks || [],
+    networks: Array.isArray(data.networks) ? data.networks : [data.networks],
     purposes: filterSelectedCheckboxes(data.purposes || []),
     stackLevels: filterSelectedCheckboxes(data.stackLevels || []),
     technologies: filterNoResponse(data.technologies || []),
