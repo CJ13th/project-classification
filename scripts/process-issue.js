@@ -1,9 +1,7 @@
 const fs = require("fs");
 
-// Read the issue body from the provided file path
 const issueBody = fs.readFileSync(process.argv[2], "utf8");
 
-// Debug the full issue body
 console.log("Issue body content:", issueBody);
 
 const data = {};
@@ -16,7 +14,6 @@ while ((match = regex.exec(issueBody)) !== null) {
   const key = match[1].trim();
   let value = match[2].trim();
 
-  // Process checkboxes and multi-line inputs
   if (["Purposes", "Stack Levels", "Types", "Rewards"].includes(key)) {
     value = value.split("\n").map((v) => v.trim());
   } else if (
@@ -30,14 +27,12 @@ while ((match = regex.exec(issueBody)) !== null) {
       "Networks",
     ].includes(key)
   ) {
-    // Split into lines, filter empty ones, and trim
     value = value
       .split("\n")
       .filter((v) => v.trim() !== "")
       .map((v) => v.trim());
   }
 
-  // Map keys to match JSON schema property names
   const keyMap = {
     "Project Name": "name",
     Slug: "slug",
@@ -63,17 +58,14 @@ if (!matchFound) {
   process.exit(1);
 }
 
-// Ensure 'slug' exists
 if (!data.slug) {
   console.error("Error: Slug not found in issue body.");
   process.exit(1);
 }
 
-// Set the slug output using the GITHUB_OUTPUT variable
 const output = process.env.GITHUB_OUTPUT;
 fs.writeFileSync(output, `slug=${data.slug}\n`);
 
-// Helper function to filter selected checkboxes
 function filterSelectedCheckboxes(options) {
   return options
     .filter((option) => {
@@ -85,7 +77,6 @@ function filterSelectedCheckboxes(options) {
     .map((option) => option.replace(/- \[[xX]\] /, "").trim());
 }
 
-// Helper function to map repository-like entries with labels and URLs
 function mapLabelledEntries(entries) {
   return entries.map((entry) => {
     const [label, url] = entry.includes(" - ")
@@ -95,12 +86,11 @@ function mapLabelledEntries(entries) {
   });
 }
 
-// Map the data to the required JSON structure
 const outputJson = {
   name: data.name,
   slug: data.slug,
   description: data.description,
-  richText: "", // Add if needed
+  richText: "",
   links: {
     website: mapLabelledEntries(data.websites || []),
     docs: mapLabelledEntries(data.documentation || []),
@@ -123,10 +113,8 @@ const outputJson = {
   },
 };
 
-// Debug the final JSON structure
 console.log("Generated JSON:", outputJson);
 
-// Write the output JSON to the desired location
 fs.writeFileSync(
   `data/projects/${data.slug}.json`,
   JSON.stringify(outputJson, null, 2)

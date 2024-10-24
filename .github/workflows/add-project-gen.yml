@@ -10,14 +10,12 @@ jobs:
     if: contains(github.event.issue.labels.*.name, 'add-project')
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: main # Ensure the main branch is checked out
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+        uses: actions/setup-node@v4
 
       - name: Install JSON Schema Validator and Formats
         run: |
