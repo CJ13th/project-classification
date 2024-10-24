@@ -39,10 +39,18 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch -c "add-${{ steps.generate_json.outputs.slug }}" || git checkout -b "add-${{ steps.generate_json.outputs.slug }}"
+          BRANCH_NAME="add-${{ steps.generate_json.outputs.slug }}"
+
+          if git ls-remote --heads origin "${BRANCH_NAME}" | grep "${BRANCH_NAME}"; then
+            git checkout "${BRANCH_NAME}"
+          else
+            git checkout -b "${BRANCH_NAME}"
+          fi
+          
           git add "data/projects/${{ steps.generate_json.outputs.slug }}.json"
-          git commit -m "Add project: ${{ steps.generate_json.outputs.slug }}"
-          git push origin "add-${{ steps.generate_json.outputs.slug }}"
+          
+          git commit -m "Update project: ${{ steps.generate_json.outputs.slug }}"
+          git push origin "${BRANCH_NAME}"
           
       - name: Install GitHub CLI
         run: |
@@ -52,7 +60,15 @@ jobs:
         env:
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr create --title "Add new project: ${{ steps.generate_json.outputs.slug }}" \
-            --body "This PR adds a new project file for the project slug ${{ steps.generate_json.outputs.slug }}." \
-            --head "add-${{ steps.generate_json.outputs.slug }}" \
-            --base "main"
+          PR_TITLE="Add new project: ${{ steps.generate_json.outputs.slug }}"
+          PR_BODY="This PR adds or updates the project file for the project slug ${{ steps.generate_json.outputs.slug }}."
+          BRANCH_NAME="add-${{ steps.generate_json.outputs.slug }}"
+
+          if gh pr list --head "${BRANCH_NAME}" --state open | grep "${BRANCH_NAME}"; then
+            echo "Pull request already exists, no need to create a new one."
+          else
+            gh pr create --title "$PR_TITLE" \
+              --body "$PR_BODY" \
+              --head "$BRANCH_NAME" \
+              --base "main"
+          fi
