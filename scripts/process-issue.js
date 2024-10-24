@@ -136,6 +136,6 @@ console.log("Generated JSON:", outputJson);
 
 fs.writeFileSync(
   `data/projects/${data.slug}.json`,
-  JSON.stringify(outputJson, null, 2),
+  JSON.stringify(outputJson, null, 2) + "\n",
   { encoding: "utf-8" }
 );
