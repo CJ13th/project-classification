@@ -88,6 +88,9 @@ function filterSelectedCheckboxes(options) {
 }
 
 function mapLabelledEntries(entries, fieldType = "") {
+  if (!Array.isArray(entries)) {
+    return [];
+  }
   return entries.map((entry) => {
     const lastHyphenIndex = entry.lastIndexOf(" - ");
 
