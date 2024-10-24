@@ -15,7 +15,7 @@ while ((match = regex.exec(issueBody)) !== null) {
   let value = match[2].trim();
 
   if (["Purposes", "Stack Levels", "Types", "Rewards"].includes(key)) {
-    value = value.split("\n").map((v) => v.trim());
+    value = filterNoResponse(value);
   } else if (
     [
       "Websites",
@@ -65,6 +65,13 @@ if (!data.slug) {
 
 const output = process.env.GITHUB_OUTPUT;
 fs.writeFileSync(output, `slug=${data.slug}\n`);
+
+function filterNoResponse(value) {
+  if (value === "_No response_" || !value.trim()) {
+    return [];
+  }
+  return value.split("\n").filter((v) => v.trim() !== "");
+}
 
 function filterSelectedCheckboxes(options) {
   return options
@@ -129,5 +136,6 @@ console.log("Generated JSON:", outputJson);
 
 fs.writeFileSync(
   `data/projects/${data.slug}.json`,
-  JSON.stringify(outputJson, null, 2)
+  JSON.stringify(outputJson, null, 2),
+  { encoding: "utf-8" }
 );
