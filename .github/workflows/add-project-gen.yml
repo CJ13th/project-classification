@@ -43,6 +43,8 @@ jobs:
 
           git fetch origin
 
+          git stash --include-untracked
+
 
           if git rev-parse --verify "${BRANCH_NAME}"; then
             git checkout "${BRANCH_NAME}"
@@ -51,6 +53,8 @@ jobs:
           fi
 
           git pull --rebase origin "${BRANCH_NAME}"
+
+          git stash pop || true
           
           git add "data/projects/${{ steps.generate_json.outputs.slug }}.json"
           
