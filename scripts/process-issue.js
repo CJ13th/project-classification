@@ -58,6 +58,7 @@ while ((match = regex.exec(issueBody)) !== null) {
     ].includes(key)
   ) {
     value = filterNoResponse(value); // Apply filterNoResponse to these fields
+    value = handleMultiLineField(value); // Ensure it is handled as an array
   }
 
   const keyMap = {
