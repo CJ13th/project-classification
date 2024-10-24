@@ -7,10 +7,12 @@ on:
 jobs:
   generate_json:
     runs-on: ubuntu-latest
-    if: contains(github.event.issue.labels.*.name, 'add-project')
+    if: contains(github.event.issue.body, '### Project Submission')
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          ref: main # Ensure the main branch is checked out
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -22,6 +24,7 @@ jobs:
           npm install -g ajv-cli ajv-formats
 
       - name: Extract Issue Form Data and Generate JSON
+        id: generate_json
         run: |
           # Save the issue body to a file
           echo "${{ github.event.issue.body }}" > issue_body.md
@@ -93,10 +96,13 @@ jobs:
             console.log('Parsed data:', data);
 
             // Ensure 'name' exists
-            if (!data.name) {
-              console.error('Error: Project Name not found in issue body.');
+            if (!data.slug) {
+              console.error('Error: Slug not found in issue body.');
               process.exit(1);
             }
+
+            // Save the slug to be used later
+            console.log('::set-output name=slug::' + data.slug);
 
             // Helper function to filter selected checkboxes
             function filterSelectedCheckboxes(options) {
@@ -157,20 +163,28 @@ jobs:
             // Debug the final JSON structure
             console.log('Generated JSON:', output);
 
-            fs.writeFileSync('output.json', JSON.stringify(output, null, 2));
+            // Write the output JSON to the desired location
+            fs.writeFileSync('data/projects/' + data.slug + '.json', JSON.stringify(output, null, 2));
             "
+
       - name: Validate JSON File
         run: |
           # Ensure the schema.json file is in the correct path
-          ajv -c ajv-formats validate -s schema.json -d output.json --strict=false
+          ajv -c ajv-formats validate -s schema.json -d "data/projects/${{ steps.generate_json.outputs.slug }}.json" --strict=false
 
-      - name: Commit and Push JSON File
-        if: success()
-        env:
-          PROJECT_NAME: ${{ steps.generate_json.outputs.project_name }}
+      - name: Create a New Branch and Push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add output.json
-          git commit -m "Add project: $(jq -r '.name' output.json)"
-          git push
+          git checkout -b "add-${{ steps.generate_json.outputs.slug }}"
+          git add data/projects/${{ steps.generate_json.outputs.slug }}.json
+          git commit -m "Add project: ${{ steps.generate_json.outputs.slug }}"
+          git push origin "add-${{ steps.generate_json.outputs.slug }}"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: "add-${{ steps.generate_json.outputs.slug }}"
+          title: "Add new project: ${{ steps.generate_json.outputs.slug }}"
+          body: "This PR adds a new project file for the project slug ${{ steps.generate_json.outputs.slug }}."
