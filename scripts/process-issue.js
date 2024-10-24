@@ -1,5 +1,12 @@
 const fs = require("fs");
 
+function filterNoResponse(value) {
+  if (value === "_No response_" || !value.trim()) {
+    return [];
+  }
+  return value.split("\n").filter((v) => v.trim() !== "");
+}
+
 const issueBody = fs.readFileSync(process.argv[2], "utf8");
 
 console.log("Issue body content:", issueBody);
@@ -15,7 +22,7 @@ while ((match = regex.exec(issueBody)) !== null) {
   let value = match[2].trim();
 
   if (["Purposes", "Stack Levels", "Types", "Rewards"].includes(key)) {
-    value = filterNoResponse(value);
+    value = value.split("\n").map((v) => v.trim());
   } else if (
     [
       "Websites",
@@ -27,10 +34,7 @@ while ((match = regex.exec(issueBody)) !== null) {
       "Networks",
     ].includes(key)
   ) {
-    value = value
-      .split("\n")
-      .filter((v) => v.trim() !== "")
-      .map((v) => v.trim());
+    value = filterNoResponse(value);
   }
 
   const keyMap = {
@@ -65,13 +69,6 @@ if (!data.slug) {
 
 const output = process.env.GITHUB_OUTPUT;
 fs.writeFileSync(output, `slug=${data.slug}\n`);
-
-function filterNoResponse(value) {
-  if (value === "_No response_" || !value.trim()) {
-    return [];
-  }
-  return value.split("\n").filter((v) => v.trim() !== "");
-}
 
 function filterSelectedCheckboxes(options) {
   return options
@@ -121,7 +118,7 @@ const outputJson = {
     networks: data.networks || [],
     purposes: filterSelectedCheckboxes(data.purposes || []),
     stackLevels: filterSelectedCheckboxes(data.stackLevels || []),
-    technologies: data.technologies || [],
+    technologies: filterNoResponse(data.technologies || []),
     types: filterSelectedCheckboxes(data.types || []),
     rewards:
       data.rewards &&
@@ -137,5 +134,5 @@ console.log("Generated JSON:", outputJson);
 fs.writeFileSync(
   `data/projects/${data.slug}.json`,
   JSON.stringify(outputJson, null, 2) + "\n",
-  { encoding: "utf-8" }
+  { encoding: "utf8" }
 );
