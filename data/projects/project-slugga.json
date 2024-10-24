@@ -1,0 +1,21 @@
+{
+  "name": "project",
+  "slug": "project-slugga",
+  "description": "Project Description",
+  "richText": "",
+  "links": {
+    "website": [],
+    "docs": [],
+    "explorer": [],
+    "repository": [],
+    "social": []
+  },
+  "attributes": {
+    "networks": [],
+    "purposes": [],
+    "stackLevels": [],
+    "technologies": [],
+    "types": [],
+    "rewards": false
+  }
+}
