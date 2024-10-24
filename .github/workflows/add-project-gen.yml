@@ -35,17 +35,18 @@ jobs:
           # Ensure the schema.json file is in the correct path
           ajv -c ajv-formats validate -s schema.json -d "data/projects/${{ steps.generate_json.outputs.slug }}.json" --strict=false
 
-      - name: Create a New Branch and Push
+      - name: Create or Switch to Existing Branch and Push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
           BRANCH_NAME="add-${{ steps.generate_json.outputs.slug }}"
 
           git fetch origin
 
           git stash --include-untracked
 
-          if git rev-parse --verify "${BRANCH_NAME}"; then
+          if git ls-remote --heads origin "${BRANCH_NAME}" | grep "${BRANCH_NAME}"; then
             git checkout -B "${BRANCH_NAME}"
             git reset --hard "origin/${BRANCH_NAME}"
           else
@@ -53,11 +54,12 @@ jobs:
           fi
 
           git stash pop || true
-          
+
           git add "data/projects/${{ steps.generate_json.outputs.slug }}.json"
           
           git commit -m "Update project: ${{ steps.generate_json.outputs.slug }}"
-          git push origin "${BRANCH_NAME}"
+          git push --force origin "${BRANCH_NAME}"
+
           
       - name: Install GitHub CLI
         run: |
