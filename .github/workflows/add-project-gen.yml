@@ -31,7 +31,7 @@ jobs:
             const fs = require('fs');
             const issueBody = fs.readFileSync('issue_body.md', 'utf8');
             const data = {};
-            const regex = /### (.*?)\\n([\\s\\S]*?)(?=\\n###|$)/g;
+            const regex = /### (.*?)\\n([\\s\\S]*?)(?=\\n###|$)/gi;
             let match;
 
             while ((match = regex.exec(issueBody)) !== null) {
