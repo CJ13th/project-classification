@@ -77,12 +77,24 @@ function filterSelectedCheckboxes(options) {
     .map((option) => option.replace(/- \[[xX]\] /, "").trim());
 }
 
-function mapLabelledEntries(entries) {
+function mapLabelledEntries(entries, fieldType = "") {
   return entries.map((entry) => {
-    const [label, url] = entry.includes(" - ")
-      ? entry.split(" - ")
-      : ["", entry];
-    return { label: label.trim(), url: url.trim() };
+    const lastHyphenIndex = entry.lastIndexOf(" - ");
+
+    if (lastHyphenIndex === -1) {
+      if (fieldType === "website") {
+        const url = entry.trim();
+        const label = url.replace(/^https?:\/\//, "").split("/")[0];
+        return { label, url };
+      }
+
+      return { label: "", url: entry.trim() };
+    }
+
+    const label = entry.slice(0, lastHyphenIndex).trim();
+    const url = entry.slice(lastHyphenIndex + 3).trim();
+
+    return { label, url };
   });
 }
 
@@ -92,7 +104,7 @@ const outputJson = {
   description: data.description,
   richText: "",
   links: {
-    website: mapLabelledEntries(data.websites || []),
+    website: mapLabelledEntries(data.websites || [], "website"),
     docs: mapLabelledEntries(data.documentation || []),
     explorer: mapLabelledEntries(data.explorers || []),
     repository: mapLabelledEntries(data.repositories || []),
