@@ -7,7 +7,7 @@ on:
 jobs:
   generate_json:
     runs-on: ubuntu-latest
-    if: contains(github.event.issue.body, '### Project Submission')
+    if: contains(github.event.issue.labels.*.name, 'add-project')
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3

@@ -6,10 +6,6 @@ title: "[Add a project]"
 labels: ["add-project"]
 
 body:
-  - type: markdown
-    id: identifier
-    attributes:
-      value: "### Project Submission"
 
   - type: input
     id: name
