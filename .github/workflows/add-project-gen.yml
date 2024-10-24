@@ -45,14 +45,12 @@ jobs:
 
           git stash --include-untracked
 
-
           if git rev-parse --verify "${BRANCH_NAME}"; then
-            git checkout "${BRANCH_NAME}"
+            git checkout -B "${BRANCH_NAME}"
+            git reset --hard "origin/${BRANCH_NAME}"
           else
             git checkout -b "${BRANCH_NAME}"
           fi
-
-          git merge --no-ff origin/"${BRANCH_NAME}"
 
           git stash pop || true
           
