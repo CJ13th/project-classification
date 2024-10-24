@@ -41,7 +41,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           BRANCH_NAME="add-${{ steps.generate_json.outputs.slug }}"
 
-          if git ls-remote --heads origin "${BRANCH_NAME}" | grep "${BRANCH_NAME}"; then
+           git fetch origin
+
+
+          if git rev-parse --verify "${BRANCH_NAME}"; then
             git checkout "${BRANCH_NAME}"
           else
             git checkout -b "${BRANCH_NAME}"
