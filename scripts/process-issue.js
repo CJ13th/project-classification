@@ -1,10 +1,16 @@
 const fs = require("fs");
 
 function filterNoResponse(value) {
-  if (value === "_No response_" || !value.trim()) {
+  if (
+    typeof value === "string" &&
+    (value === "_No response_" || !value.trim())
+  ) {
     return [];
   }
-  return value.split("\n").filter((v) => v.trim() !== "");
+  if (Array.isArray(value)) {
+    return value.filter((v) => v !== "_No response_" && v.trim() !== "");
+  }
+  return value;
 }
 
 const issueBody = fs.readFileSync(process.argv[2], "utf8");
