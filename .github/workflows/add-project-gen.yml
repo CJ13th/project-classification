@@ -1,0 +1,112 @@
+name: Process Issue Form Submission
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  generate_json:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'add-project')
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install JSON Schema Validator and Formats
+        run: |
+          npm install -g ajv-cli ajv-formats
+
+      - name: Extract Issue Form Data and Generate JSON
+        run: |
+          # Save the issue body to a file
+          echo "${{ github.event.issue.body }}" > issue_body.md
+
+          # Run Node.js code to parse the issue body and generate output.json
+          node -e "
+            const fs = require('fs');
+            const issueBody = fs.readFileSync('issue_body.md', 'utf8');
+            const data = {};
+            const regex = /### (.*?)\\n([\\s\\S]*?)(?=\\n###|$)/g;
+            let match;
+
+            while ((match = regex.exec(issueBody)) !== null) {
+              const key = match[1].trim();
+              let value = match[2].trim();
+
+              // Process checkboxes and multi-line inputs
+              if (['Purposes', 'Stack Levels', 'Types', 'Rewards'].includes(key)) {
+                value = value.split('\\n').map((v) => v.trim());
+              } else if (['Websites', 'Documentation', 'Explorers', 'Repositories', 'Social Media', 'Technologies', 'Networks'].includes(key)) {
+                value = value.split('\\n').filter((v) => v.trim() !== '').map((v) => v.trim());
+              }
+
+              // Map keys to match JSON schema property names
+              const keyMap = {
+                'Project Name': 'name',
+                'Slug': 'slug',
+                'Description': 'description',
+                'Websites': 'websites',
+                'Documentation': 'documentation',
+                'Explorers': 'explorers',
+                'Repositories': 'repositories',
+                'Social Media': 'social',
+                'Networks': 'networks',
+                'Purposes': 'purposes',
+                'Stack Levels': 'stackLevels',
+                'Technologies': 'technologies',
+                'Types': 'types',
+                'Rewards': 'rewards',
+              };
+
+              data[keyMap[key] || key] = value;
+            }
+
+            // Map the data to the required JSON structure
+            const output = {
+              name: data.name,
+              slug: data.slug,
+              description: data.description,
+              richText: '', // Add if needed
+              links: {
+                website: data.websites?.map((url) => ({ label: '', url })) || [],
+                docs: data.documentation?.map((url) => ({ label: '', url })) || [],
+                explorer: data.explorers?.map((url) => ({ label: '', url })) || [],
+                repository: data.repositories?.map((entry) => {
+                  const [label, url] = entry.includes(' - ') ? entry.split(' - ') : ['', entry];
+                  return { label: label.trim(), url: url.trim() };
+                }) || [],
+                social: data.social?.map((url) => ({ label: '', url })) || [],
+              },
+              attributes: {
+                networks: data.networks || [],
+                purposes: data.purposes || [],
+                stackLevels: data.stackLevels || [],
+                technologies: data.technologies || [],
+                types: data.types || [],
+                rewards: data.rewards?.includes('The project can pay rewards to contributors.') || false,
+              },
+            };
+
+            fs.writeFileSync('output.json', JSON.stringify(output, null, 2));
+          "
+
+      - name: Validate JSON File
+        run: |
+          # Ensure the schema.json file is in the correct path
+          ajv -c ajv-formats validate -s schema.json -d output.json --strict=false
+
+      - name: Commit and Push JSON File
+        if: success()
+        env:
+          PROJECT_NAME: ${{ steps.generate_json.outputs.project_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add output.json
+          git commit -m "Add project: $(jq -r '.name' output.json)"
+          git push
