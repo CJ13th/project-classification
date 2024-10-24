@@ -41,7 +41,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           BRANCH_NAME="add-${{ steps.generate_json.outputs.slug }}"
 
-           git fetch origin
+          git fetch origin
 
 
           if git rev-parse --verify "${BRANCH_NAME}"; then
@@ -49,6 +49,8 @@ jobs:
           else
             git checkout -b "${BRANCH_NAME}"
           fi
+
+          git pull --rebase origin "${BRANCH_NAME}"
           
           git add "data/projects/${{ steps.generate_json.outputs.slug }}.json"
           
