@@ -51,5 +51,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: "add-${{ steps.generate_json.outputs.slug }}"
+          base: "main"
           title: "Add new project: ${{ steps.generate_json.outputs.slug }}"
           body: "This PR adds a new project file for the project slug ${{ steps.generate_json.outputs.slug }}."
