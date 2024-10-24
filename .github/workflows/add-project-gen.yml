@@ -29,143 +29,8 @@ jobs:
           # Save the issue body to a file
           echo "${{ github.event.issue.body }}" > issue_body.md
 
-          # Run Node.js code to parse the issue body and generate output.json
-          node -e "
-            const fs = require('fs');
-            const issueBody = fs.readFileSync('issue_body.md', 'utf8');
-            // Debug the full issue body
-            console.log('Issue body content:', issueBody);
-
-            const data = {};
-            const regex = /###\s*(.*?)\s*\n\s*([\s\S]*?)(?=\n###|\n*$)/g;
-            let match;
-            let matchFound = false;
-
-            while ((match = regex.exec(issueBody)) !== null) {
-              matchFound = true;
-              const key = match[1].trim();
-              let value = match[2].trim();
-
-              // Process checkboxes and multi-line inputs
-              if (['Purposes', 'Stack Levels', 'Types', 'Rewards'].includes(key)) {
-                value = value.split('\n').map((v) => v.trim());
-              } else if (
-                [
-                  'Websites',
-                  'Documentation',
-                  'Explorers',
-                  'Repositories',
-                  'Social Media',
-                  'Technologies',
-                  'Networks',
-                ].includes(key)
-              ) {
-                value = value
-                  .split('\n')
-                  .filter((v) => v.trim() !== '')
-                  .map((v) => v.trim());
-              }
-
-              // Map keys to match JSON schema property names
-              const keyMap = {
-                'Project Name': 'name',
-                Slug: 'slug',
-                Description: 'description',
-                Websites: 'websites',
-                Documentation: 'documentation',
-                Explorers: 'explorers',
-                Repositories: 'repositories',
-                'Social Media': 'social',
-                Networks: 'networks',
-                Purposes: 'purposes',
-                'Stack Levels': 'stackLevels',
-                Technologies: 'technologies',
-                Types: 'types',
-                Rewards: 'rewards',
-              };
-
-              data[keyMap[key] || key] = value;
-            }
-
-            if (!matchFound) {
-              console.error('No matches found in the issue body!');
-              process.exit(1);
-            }
-
-            // Debug parsed data
-            console.log('Parsed data:', data);
-
-            // Ensure 'name' exists
-            if (!data.slug) {
-              console.error('Error: Slug not found in issue body.');
-              process.exit(1);
-            }
-
-            // Save the slug to be used later
-            console.log('::set-output name=slug::' + data.slug);
-
-            // Helper function to filter selected checkboxes
-            function filterSelectedCheckboxes(options) {
-              return options
-                .filter((option) => {
-                  const trimmedOption = option.trim();
-                  return (
-                    trimmedOption.startsWith('- [X]') ||
-                    trimmedOption.startsWith('- [x]')
-                  );
-                })
-                .map((option) => option.replace(/- \[[xX]\] /, '').trim());
-            }
-
-            // Helper function to map repository entries with labels and URLs
-            function mapRepositories(repositories) {
-              return repositories.map((entry) => {
-                const [label, url] = entry.includes(' - ')
-                  ? entry.split(' - ')
-                  : ['', entry];
-                return { label: label.trim(), url: url.trim() };
-              });
-            }
-
-            // Map the data to the required JSON structure
-            const output = {
-              name: data.name,
-              slug: data.slug,
-              description: data.description,
-              richText: '', // Add if needed
-              links: {
-                website: data.websites?.map((url) => ({ label: 'Website', url })) || [],
-                docs:
-                  data.documentation?.map((url) => ({ label: 'Documentation', url })) ||
-                  [],
-                explorer:
-                  data.explorers?.map((url) => ({ label: 'Explorer', url })) || [],
-                repository: mapRepositories(data.repositories || []),
-                social:
-                  data.social?.map((url) => ({ label: 'Social Media', url })) || [],
-              },
-              attributes: {
-                networks: data.networks || [],
-                purposes: filterSelectedCheckboxes(data.purposes || []),
-                stackLevels: filterSelectedCheckboxes(data.stackLevels || []),
-                technologies: data.technologies || [],
-                types: filterSelectedCheckboxes(data.types || []),
-                rewards:
-                  data.rewards &&
-                  data.rewards.some(
-                    (option) =>
-                      option.trim().startsWith('- [X]') ||
-                      option.trim().startsWith('- [x]')
-                  ),
-              },
-            };
-
-            // Debug the final JSON structure
-            console.log('Generated JSON:', output);
-
-            // Write the output JSON to the desired location
-            fs.writeFileSync('data/projects/' + data.slug + '.json', JSON.stringify(output, null, 2));
-            "
+          # Run the external script to process the issue and generate JSON
+          node scripts/process-issue.js issue_body.md
 
       - name: Validate JSON File
         run: |
@@ -176,7 +41,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b "add-${{ steps.generate_json.outputs.slug }}"
+          git switch -c "add-${{ steps.generate_json.outputs.slug }}" || git checkout -b "add-${{ steps.generate_json.outputs.slug }}"
           git add data/projects/${{ steps.generate_json.outputs.slug }}.json
           git commit -m "Add project: ${{ steps.generate_json.outputs.slug }}"
           git push origin "add-${{ steps.generate_json.outputs.slug }}"
