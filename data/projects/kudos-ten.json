@@ -1,0 +1,75 @@
+{
+  "name": "Kudos",
+  "slug": "kudos-ten",
+  "description": "A portal for devtime",
+  "richText": "",
+  "links": {
+    "website": [
+      {
+        "label": "MoreKudos",
+        "url": "https://morekudos.com/"
+      },
+      {
+        "label": "MoreKudos",
+        "url": "https://morekudos.com/"
+      }
+    ],
+    "docs": [
+      {
+        "label": "Docs",
+        "url": "https://github.com/kudos-ink/project-classification"
+      },
+      {
+        "label": "MoreDocs",
+        "url": "https://github.com/kudos-ink/project-classification"
+      }
+    ],
+    "explorer": [
+      {
+        "label": "Subscan",
+        "url": "https://polkadot.subscan.io/"
+      }
+    ],
+    "repository": [
+      {
+        "label": "Kudos Portal",
+        "url": "https://github.com/kudos-ink/portal"
+      },
+      {
+        "label": "Kudos Portal",
+        "url": "https://github.com/kudos-ink/portal"
+      }
+    ],
+    "social": [
+      {
+        "label": "X/Twitter",
+        "url": "https://x.com/KudosPortal"
+      }
+    ]
+  },
+  "attributes": {
+    "networks": [
+      "Polkadot",
+      "Ethereum"
+    ],
+    "purposes": [
+      "bridge",
+      "nft",
+      "rwa"
+    ],
+    "stackLevels": [
+      "runtime",
+      "smart-contract",
+      "offchain"
+    ],
+    "technologies": [
+      "Substrate",
+      "Ink!"
+    ],
+    "types": [
+      "platform",
+      "framework"
+    ],
+    "rewards": true
+  }
+}
