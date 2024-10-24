@@ -30,6 +30,7 @@ while ((match = regex.exec(issueBody)) !== null) {
       "Networks",
     ].includes(key)
   ) {
+    // Split into lines, filter empty ones, and trim
     value = value
       .split("\n")
       .filter((v) => v.trim() !== "")
@@ -62,9 +63,6 @@ if (!matchFound) {
   process.exit(1);
 }
 
-// Debug parsed data
-console.log("Parsed data:", data);
-
 // Ensure 'slug' exists
 if (!data.slug) {
   console.error("Error: Slug not found in issue body.");
@@ -87,9 +85,9 @@ function filterSelectedCheckboxes(options) {
     .map((option) => option.replace(/- \[[xX]\] /, "").trim());
 }
 
-// Helper function to map repository entries with labels and URLs
-function mapRepositories(repositories) {
-  return repositories.map((entry) => {
+// Helper function to map repository-like entries with labels and URLs
+function mapLabelledEntries(entries) {
+  return entries.map((entry) => {
     const [label, url] = entry.includes(" - ")
       ? entry.split(" - ")
       : ["", entry];
@@ -104,12 +102,11 @@ const outputJson = {
   description: data.description,
   richText: "", // Add if needed
   links: {
-    website: data.websites?.map((url) => ({ label: "Website", url })) || [],
-    docs:
-      data.documentation?.map((url) => ({ label: "Documentation", url })) || [],
-    explorer: data.explorers?.map((url) => ({ label: "Explorer", url })) || [],
-    repository: mapRepositories(data.repositories || []),
-    social: data.social?.map((url) => ({ label: "Social Media", url })) || [],
+    website: mapLabelledEntries(data.websites || []),
+    docs: mapLabelledEntries(data.documentation || []),
+    explorer: mapLabelledEntries(data.explorers || []),
+    repository: mapLabelledEntries(data.repositories || []),
+    social: mapLabelledEntries(data.social || []),
   },
   attributes: {
     networks: data.networks || [],
