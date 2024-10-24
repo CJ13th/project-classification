@@ -1,0 +1,31 @@
+{
+  "name": "OriginTrail",
+  "slug": "origin-trail",
+  "description": "OriginTrail is an ecosystem dedicated to building a sustainable global economy by organizing trusted AI-ready Knowledge Assets. Utilizing its unique Decentralized Knowledge Graph and NeuroWeb, it delivers AI-powered semantic search to enterprises and individuals worldwide.",
+  "richText": "",
+  "links": {
+    "website": [],
+    "docs": [],
+    "explorer": [],
+    "repository": [],
+    "social": []
+  },
+  "attributes": {
+    "networks": [
+      "Polkadot"
+    ],
+    "purposes": [
+      "ai",
+      "data"
+    ],
+    "stackLevels": [
+      "protocol"
+    ],
+    "technologies": [],
+    "types": [
+      "platform",
+      "dApp"
+    ],
+    "rewards": false
+  }
+}
