@@ -30,40 +30,95 @@ jobs:
           node -e "
             const fs = require('fs');
             const issueBody = fs.readFileSync('issue_body.md', 'utf8');
+            // Debug the full issue body
+            console.log('Issue body content:', issueBody);
+
             const data = {};
-            const regex = /### (.*?)\\n([\\s\\S]*?)(?=\\n###|$)/gi;
+            const regex = /###\s*(.*?)\s*\n\s*([\s\S]*?)(?=\n###|\n*$)/g;
             let match;
+            let matchFound = false;
 
             while ((match = regex.exec(issueBody)) !== null) {
+              matchFound = true;
               const key = match[1].trim();
               let value = match[2].trim();
 
               // Process checkboxes and multi-line inputs
               if (['Purposes', 'Stack Levels', 'Types', 'Rewards'].includes(key)) {
-                value = value.split('\\n').map((v) => v.trim());
-              } else if (['Websites', 'Documentation', 'Explorers', 'Repositories', 'Social Media', 'Technologies', 'Networks'].includes(key)) {
-                value = value.split('\\n').filter((v) => v.trim() !== '').map((v) => v.trim());
+                value = value.split('\n').map((v) => v.trim());
+              } else if (
+                [
+                  'Websites',
+                  'Documentation',
+                  'Explorers',
+                  'Repositories',
+                  'Social Media',
+                  'Technologies',
+                  'Networks',
+                ].includes(key)
+              ) {
+                value = value
+                  .split('\n')
+                  .filter((v) => v.trim() !== '')
+                  .map((v) => v.trim());
               }
 
               // Map keys to match JSON schema property names
               const keyMap = {
                 'Project Name': 'name',
-                'Slug': 'slug',
-                'Description': 'description',
-                'Websites': 'websites',
-                'Documentation': 'documentation',
-                'Explorers': 'explorers',
-                'Repositories': 'repositories',
+                Slug: 'slug',
+                Description: 'description',
+                Websites: 'websites',
+                Documentation: 'documentation',
+                Explorers: 'explorers',
+                Repositories: 'repositories',
                 'Social Media': 'social',
-                'Networks': 'networks',
-                'Purposes': 'purposes',
+                Networks: 'networks',
+                Purposes: 'purposes',
                 'Stack Levels': 'stackLevels',
-                'Technologies': 'technologies',
-                'Types': 'types',
-                'Rewards': 'rewards',
+                Technologies: 'technologies',
+                Types: 'types',
+                Rewards: 'rewards',
               };
 
               data[keyMap[key] || key] = value;
+            }
+
+            if (!matchFound) {
+              console.error('No matches found in the issue body!');
+              process.exit(1);
+            }
+
+            // Debug parsed data
+            console.log('Parsed data:', data);
+
+            // Ensure 'name' exists
+            if (!data.name) {
+              console.error('Error: Project Name not found in issue body.');
+              process.exit(1);
+            }
+
+            // Helper function to filter selected checkboxes
+            function filterSelectedCheckboxes(options) {
+              return options
+                .filter((option) => {
+                  const trimmedOption = option.trim();
+                  return (
+                    trimmedOption.startsWith('- [X]') ||
+                    trimmedOption.startsWith('- [x]')
+                  );
+                })
+                .map((option) => option.replace(/- \[[xX]\] /, '').trim());
+            }
+
+            // Helper function to map repository entries with labels and URLs
+            function mapRepositories(repositories) {
+              return repositories.map((entry) => {
+                const [label, url] = entry.includes(' - ')
+                  ? entry.split(' - ')
+                  : ['', entry];
+                return { label: label.trim(), url: url.trim() };
+              });
             }
 
             // Map the data to the required JSON structure
@@ -73,28 +128,37 @@ jobs:
               description: data.description,
               richText: '', // Add if needed
               links: {
-                website: data.websites?.map((url) => ({ label: '', url })) || [],
-                docs: data.documentation?.map((url) => ({ label: '', url })) || [],
-                explorer: data.explorers?.map((url) => ({ label: '', url })) || [],
-                repository: data.repositories?.map((entry) => {
-                  const [label, url] = entry.includes(' - ') ? entry.split(' - ') : ['', entry];
-                  return { label: label.trim(), url: url.trim() };
-                }) || [],
-                social: data.social?.map((url) => ({ label: '', url })) || [],
+                website: data.websites?.map((url) => ({ label: 'Website', url })) || [],
+                docs:
+                  data.documentation?.map((url) => ({ label: 'Documentation', url })) ||
+                  [],
+                explorer:
+                  data.explorers?.map((url) => ({ label: 'Explorer', url })) || [],
+                repository: mapRepositories(data.repositories || []),
+                social:
+                  data.social?.map((url) => ({ label: 'Social Media', url })) || [],
               },
               attributes: {
                 networks: data.networks || [],
-                purposes: data.purposes || [],
-                stackLevels: data.stackLevels || [],
+                purposes: filterSelectedCheckboxes(data.purposes || []),
+                stackLevels: filterSelectedCheckboxes(data.stackLevels || []),
                 technologies: data.technologies || [],
-                types: data.types || [],
-                rewards: data.rewards?.includes('The project can pay rewards to contributors.') || false,
+                types: filterSelectedCheckboxes(data.types || []),
+                rewards:
+                  data.rewards &&
+                  data.rewards.some(
+                    (option) =>
+                      option.trim().startsWith('- [X]') ||
+                      option.trim().startsWith('- [x]')
+                  ),
               },
             };
 
-            fs.writeFileSync('output.json', JSON.stringify(output, null, 2));
-          "
+            // Debug the final JSON structure
+            console.log('Generated JSON:', output);
 
+            fs.writeFileSync('output.json', JSON.stringify(output, null, 2));
+            "
       - name: Validate JSON File
         run: |
           # Ensure the schema.json file is in the correct path
