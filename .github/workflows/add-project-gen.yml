@@ -45,3 +45,14 @@ jobs:
           git add "data/projects/${{ steps.generate_json.outputs.slug }}.json"
           git commit -m "Add project: ${{ steps.generate_json.outputs.slug }}"
           git push origin "add-${{ steps.generate_json.outputs.slug }}"
+          
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get install -y gh
+
+      - name: Create Pull Request
+        run: |
+          gh pr create --title "Add new project: ${{ steps.generate_json.outputs.slug }}" \
+            --body "This PR adds a new project file for the project slug ${{ steps.generate_json.outputs.slug }}." \
+            --head "add-${{ steps.generate_json.outputs.slug }}" \
+            --base "main"
