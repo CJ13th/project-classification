@@ -1,0 +1,30 @@
+{
+  "name": "Tester",
+  "slug": "tester",
+  "description": "Some description",
+  "richText": "",
+  "links": {
+    "website": [],
+    "docs": [],
+    "explorer": [],
+    "repository": [
+      {
+        "label": "Test",
+        "url": "https://github.com/CJ13th/project-classification"
+      }
+    ],
+    "social": []
+  },
+  "attributes": {
+    "networks": [],
+    "purposes": [],
+    "stackLevels": [],
+    "technologies": [
+      "substrate",
+      "ink",
+      "evm"
+    ],
+    "types": [],
+    "rewards": false
+  }
+}
