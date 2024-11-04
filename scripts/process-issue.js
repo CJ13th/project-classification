@@ -43,8 +43,11 @@ while ((match = regex.exec(issueBody)) !== null) {
   const key = match[1].trim();
   let value = match[2].trim();
 
-  // Filter "_No response_" for all relevant fields
-  if (["Purposes", "Stack Levels", "Types", "Rewards"].includes(key)) {
+  if (
+    ["Purposes", "Stack Levels", "Types", "Rewards", "Technologies"].includes(
+      key
+    )
+  ) {
     value = value.split("\n").map((v) => v.trim());
   } else if (
     [
@@ -53,12 +56,11 @@ while ((match = regex.exec(issueBody)) !== null) {
       "Explorers",
       "Repositories",
       "Social Media",
-      "Technologies", // Handle Technologies here
-      "Networks", // Handle Networks here
+      "Networks",
     ].includes(key)
   ) {
-    value = filterNoResponse(value); // Apply filterNoResponse to these fields
-    value = handleMultiLineField(value); // Ensure it is handled as an array
+    value = filterNoResponse(value);
+    value = handleMultiLineField(value);
   }
 
   const keyMap = {
@@ -128,7 +130,6 @@ function mapLabelledEntries(entries, fieldType = "") {
   });
 }
 
-// Debugging log to ensure proper values are being extracted
 console.log("Extracted data before processing links:", data);
 
 const outputJson = {
@@ -144,10 +145,10 @@ const outputJson = {
     social: mapLabelledEntries(data.social || []),
   },
   attributes: {
-    networks: handleMultiLineField(data.networks || []), // Ensure networks is split into an array
+    networks: handleMultiLineField(data.networks || []),
     purposes: filterSelectedCheckboxes(data.purposes || []),
     stackLevels: filterSelectedCheckboxes(data.stackLevels || []),
-    technologies: handleMultiLineField(data.technologies || []), // Ensure technologies is split into an array
+    technologies: filterSelectedCheckboxes(data.technologies || []),
     types: filterSelectedCheckboxes(data.types || []),
     rewards:
       data.rewards &&
@@ -160,9 +161,8 @@ const outputJson = {
 
 console.log("Generated JSON:", outputJson);
 
-// Write the JSON file with explicit UTF-8 encoding to avoid issues
 fs.writeFileSync(
   `data/projects/${data.slug}.json`,
-  JSON.stringify(outputJson, null, 2) + "\n", // Add a newline at the end
+  JSON.stringify(outputJson, null, 2) + "\n",
   { encoding: "utf8" }
 );
