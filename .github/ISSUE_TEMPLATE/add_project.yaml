@@ -6,7 +6,6 @@ title: "[Add a project]"
 labels: ["add-project"]
 
 body:
-
   - type: input
     id: name
     attributes:
@@ -38,28 +37,28 @@ body:
     id: websites
     attributes:
       label: Websites
-      description: "On each new line write the website URLs"
+      description: "On each new line write the website URLs."
       placeholder: "https://morekudos.com"
 
   - type: textarea
     id: documentation
     attributes:
       label: Documentation
-      description: "On each new line write the documentation URLs"
-      placeholder: "https://github.com/kudos-ink/docs"
+      description: "On each new line write the documentation URLs with a front end friendly label."
+      placeholder: "GitHub Docs - https://github.com/kudos-ink/docs"
 
   - type: textarea
     id: explorers
     attributes:
       label: Explorers
-      description: "On each new line write the explorer URLs."
-      placeholder: "https://polkadot.subscan.io/"
+      description: "On each new line write the explorer URLs with a front end friendly label."
+      placeholder: "Subscan - https://polkadot.subscan.io/"
 
   - type: textarea
     id: repositories
     attributes:
       label: Repositories
-      description: "On each new line write the repository URLs with front end friendly label."
+      description: "On each new line write the repository URLs with a front end friendly label."
       placeholder: "Kudos Portal - https://github.com/kudos-ink/portal"
     validations:
       required: true
@@ -68,8 +67,8 @@ body:
     id: social
     attributes:
       label: Social Media
-      description: "On each new line write the social media URLs."
-      placeholder: "https://x.com/KudosPortal"
+      description: "On each new line write the social media URLs with a front end friendly label."
+      placeholder: "X/Twitter - https://x.com/KudosPortal"
 
   - type: textarea
     id: networks
@@ -112,12 +111,15 @@ body:
         - label: messaging
         - label: offchain
 
-  - type: textarea
+  - type: checkboxes
     id: technologies
     attributes:
       label: Technologies
-      description: "On each line write the technologies used. In general, these are frameworks or languages unknown to Github."
-      placeholder: "Substrate\nInk!"
+      description: "Select the technologies used."
+      options:
+        - label: substrate
+        - label: ink
+        - label: evm
 
   - type: checkboxes
     id: types
