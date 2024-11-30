@@ -1,0 +1,72 @@
+{
+  "name": "OriginTrail",
+  "slug": "origin-trail",
+  "description": "OriginTrail is an ecosystem dedicated to building a sustainable global economy by organizing trusted AI-ready Knowledge Assets. Utilizing its unique Decentralized Knowledge Graph and NeuroWeb, it delivers AI-powered semantic search to enterprises and individuals worldwide.",
+  "richText": "",
+  "links": {
+    "website": [
+      {
+        "label": "origintrail.io",
+        "url": "https://origintrail.io/"
+      },
+      {
+        "label": "neuroweb.ai",
+        "url": "https://neuroweb.ai/"
+      }
+    ],
+    "docs": [
+      {
+        "label": "OriginTrail Docs",
+        "url": "https://docs.origintrail.io/"
+      },
+      {
+        "label": "NeuroWeb Docs",
+        "url": "https://docs.neuroweb.ai/"
+      }
+    ],
+    "explorer": [
+      {
+        "label": "Subscan",
+        "url": "https://neuroweb.subscan.io/"
+      }
+    ],
+    "repository": [
+      {
+        "label": "OriginTrail Node",
+        "url": "https://github.com/OriginTrail/ot-node"
+      },
+      {
+        "label": "NeuroWeb",
+        "url": "https://github.com/OriginTrail/neuroweb"
+      },
+      {
+        "label": "DKG.js",
+        "url": "https://github.com/OriginTrail/dkg.js"
+      }
+    ],
+    "social": [
+      {
+        "label": "X/Twitter",
+        "url": "https://x.com/origin_trail"
+      }
+    ]
+  },
+  "attributes": {
+    "networks": [
+      "Polkadot"
+    ],
+    "purposes": [
+      "ai",
+      "data"
+    ],
+    "stackLevels": [
+      "protocol"
+    ],
+    "technologies": [],
+    "types": [
+      "platform",
+      "dApp"
+    ],
+    "rewards": false
+  }
+}
